@@ -50,29 +50,29 @@ export default function Products() {
   }, [searchTerm, filterCategory, products]);
 
   const handleDelete = async (id) => {
-  if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-    try {
-      const token = localStorage.getItem("token");
+    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+      try {
+        const token = localStorage.getItem("token");
 
-      const res = await fetch(`https://food-delivery-backend-1-nyzt.onrender.com/api/admin/products/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
+        const res = await fetch(`https://food-delivery-backend-1-nyzt.onrender.com/api/admin/products/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
 
-      if (!res.ok) throw new Error("Xóa thất bại");
+        if (!res.ok) throw new Error("Xóa thất bại");
 
-      fetchProducts();
-      setMessage("✅ Xóa sản phẩm thành công!");
-      setTimeout(() => setMessage(""), 3000);
-    } catch (err) {
-      console.error("❌ Lỗi khi xóa sản phẩm:", err);
-      alert("Không thể xóa sản phẩm. Vui lòng kiểm tra quyền hoặc đăng nhập lại.");
+        fetchProducts();
+        setMessage("✅ Xóa sản phẩm thành công!");
+        setTimeout(() => setMessage(""), 3000);
+      } catch (err) {
+        console.error("❌ Lỗi khi xóa sản phẩm:", err);
+        alert("Không thể xóa sản phẩm. Vui lòng kiểm tra quyền hoặc đăng nhập lại.");
+      }
     }
-  }
-};
+  };
 
 
   const formatCurrency = (amount) => {
@@ -82,7 +82,7 @@ export default function Products() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-      
+
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản lý sản phẩm</h1>
@@ -97,7 +97,7 @@ export default function Products() {
           </button>
         </div>
 
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg p-6 text-white">
             <p className="text-sm opacity-90 mb-1">Tổng sản phẩm</p>
@@ -117,7 +117,7 @@ export default function Products() {
           </div>
         </div>
 
-        
+
         <div className="flex items-center gap-4 mb-6">
           <div className="relative flex items-center">
             <Search size={20} className="absolute left-3 text-gray-500" />

@@ -33,7 +33,7 @@ API.interceptors.response.use(
 
     console.error(`❌ [${url}] ${status}`);
 
-    
+
     if (error.response?.status === 401) {
       console.warn('⚠️  Unauthorized - Token invalid/expired');
 
@@ -70,10 +70,10 @@ export const getMyOrders = async () => {
   try {
     const response = await API.get("/orders/my-orders");
     console.log("📦 Raw API response:", response.data);
-   
+
     const orders = Array.isArray(response.data) ? response.data : [];
     console.log("📦 Processed orders:", orders);
-    
+
     return orders;
   } catch (error) {
     console.error("❌ Error in getMyOrders:", error);
