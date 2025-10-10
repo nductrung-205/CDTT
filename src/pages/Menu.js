@@ -19,7 +19,7 @@ export default function Menu() {
             try {
                 setLoading(true);
 
-                const productsRes = await fetch("http://localhost:8000/api/products");
+                const productsRes = await fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/products");
                 const productsData = await productsRes.json();
                 setProducts(productsData);
                 setFiltered(productsData);

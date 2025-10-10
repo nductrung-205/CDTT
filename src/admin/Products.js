@@ -15,7 +15,7 @@ export default function Products() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:8000/api/products");
+      const res = await fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/products");
       const data = await res.json();
       setProducts(data);
       setFilteredProducts(data);
@@ -54,7 +54,7 @@ export default function Products() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:8000/api/admin/products/${id}`, {
+      const res = await fetch(`https://food-delivery-backend-1-nyzt.onrender.com/api/admin/products/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -54,7 +54,7 @@ export default function Profile() {
     
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8000/api/update-profile", {
+      const response = await fetch("https://food-delivery-backend-1-nyzt.onrender.com/update-profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +103,7 @@ export default function Profile() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8000/api/change-password", {
+      const response = await fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
