@@ -13,13 +13,16 @@ function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getProducts()
-      .then((res) => {
-        setProducts(res.data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  getProducts()
+    .then((res) => {
+      setProducts(res.data); // hoặc setProducts(res)
+    })
+    .catch((err) => {
+      console.error("❌ Lỗi khi lấy sản phẩm:", err);
+      setLoading(false);
+    });
+}, []);
+
 
   const featuredProducts = products.slice(0, 8);
 

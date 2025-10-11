@@ -1,13 +1,14 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://food-delivery-backend-1-nyzt.onrender.com/api",
+  baseURL: process.env.REACT_APP_API_URL,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
   withCredentials: true,
 });
+
 
 API.interceptors.request.use(
   (config) => {

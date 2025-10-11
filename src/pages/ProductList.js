@@ -54,7 +54,7 @@ export default function ProductList() {
       filtered = filtered.filter((p) => p.category_id === parseInt(selectedCategory));
     }
 
-  
+
     switch (sortBy) {
       case "price-asc":
         filtered.sort((a, b) => a.price - b.price);
@@ -98,10 +98,10 @@ export default function ProductList() {
       <Header />
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 py-8">
-          
+
           <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-             
+
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSelectedCategory("all")}
@@ -126,7 +126,7 @@ export default function ProductList() {
                 ))}
               </div>
 
-              
+
               <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-600 whitespace-nowrap">Sắp xếp:</span>
                 <select
@@ -152,7 +152,7 @@ export default function ProductList() {
             )}
           </div>
 
-         
+
           {filteredProducts.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm p-12 text-center">
               <div className="text-6xl mb-4">🔍</div>
@@ -184,16 +184,17 @@ export default function ProductList() {
                     key={product.id}
                     className="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group"
                   >
-                    
+
                     <div
                       className="relative h-48 overflow-hidden bg-gray-100 cursor-pointer"
                       onClick={() => navigate(`/products/${product.id}`)}
                     >
                       <img
-                        src={product.image_url}
+                        src={product.image_url || "/images/default-product.jpg"} // fallback ảnh
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
+
                       {product.discount && (
                         <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                           -{product.discount}%
@@ -206,7 +207,7 @@ export default function ProductList() {
                       )}
                     </div>
 
-                   
+
                     <div className="p-4">
                       <h3
                         className="font-bold text-gray-800 mb-2 line-clamp-2 cursor-pointer hover:text-orange-600 transition"
@@ -221,7 +222,7 @@ export default function ProductList() {
                         </p>
                       )}
 
-                      
+
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <p className="text-2xl font-bold text-orange-600">
@@ -239,7 +240,7 @@ export default function ProductList() {
                         </div>
                       </div>
 
-                     
+
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleAddToCart(product)}
