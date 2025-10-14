@@ -111,7 +111,7 @@ export default function Header() {
                     }}
                   >
                     <img 
-                      src={p.image} 
+                      src={p.image_url} 
                       alt={p.name}
                       className="w-12 h-12 object-cover rounded-lg"
                     />

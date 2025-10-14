@@ -12,13 +12,17 @@ function Home() {
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  useEffect(() => {
+   useEffect(() => {
   getProducts()
     .then((res) => {
-      setProducts(res.data); // hoặc setProducts(res)
+      const productsData = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      console.log("🍜 Products loaded:", productsData.length);
+      setProducts(productsData);
+      setLoading(false);
     })
     .catch((err) => {
       console.error("❌ Lỗi khi lấy sản phẩm:", err);
+      setProducts([]);
       setLoading(false);
     });
 }, []);
