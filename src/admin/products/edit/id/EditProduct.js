@@ -40,7 +40,7 @@ export default function EditProduct() {
           price: data.price || "",
           category_id: data.category_id || "",
           description: data.description || "",
-          stock: data.stock?.toString() || "", // đảm bảo là chuỗi
+          stock: data.stock?.toString() || "",
           status: data.status || "available",
         });
         setCurrentImageUrl(data.image_url || "");
@@ -217,7 +217,7 @@ export default function EditProduct() {
           )}
           <input
             type="file"
-            accept="image/*"
+            accept="image_url/*"
             onChange={handleImageChange}
             className="mt-1 w-full p-2 border rounded-md"
           />
