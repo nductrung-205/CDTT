@@ -71,7 +71,7 @@ export default function AddProduct() {
     }
 
     try {
-      const res = await fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/products", {
+      const res = await fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/admin/products", {
         method: "POST",
         body: formData,
         headers: {

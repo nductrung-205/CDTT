@@ -23,7 +23,7 @@ export default function EditProduct() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/categories", {
+    fetch(`"https://food-delivery-backend-1-nyzt.onrender.com/api/admin/products"/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
@@ -97,7 +97,7 @@ export default function EditProduct() {
 
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`https://food-delivery-backend-1-nyzt.onrender.com/api/products/${id}`, {
+    const res = await fetch(`"https://food-delivery-backend-1-nyzt.onrender.com/api/admin/products"/${id}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
