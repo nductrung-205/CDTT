@@ -51,7 +51,7 @@ export default function EditProduct() {
         navigate("/admin/products");
       });
 
-    fetch("http://localhost:8000/api/categories")
+    fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data));
   }, [id, navigate]);
@@ -97,7 +97,7 @@ export default function EditProduct() {
 
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://localhost:8000/api/admin/products/${id}`, {
+    const res = await fetch(`https://food-delivery-backend-1-nyzt.onrender.com/api/products/${id}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
