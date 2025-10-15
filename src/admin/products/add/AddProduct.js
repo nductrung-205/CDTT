@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCategories, createProduct } from "../api"; 
 
 export default function AddProduct() {
   const [form, setForm] = useState({
@@ -19,21 +18,12 @@ export default function AddProduct() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  // ✅ Sử dụng getCategories từ api.js
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await getCategories();
-        console.log("✅ Categories loaded:", response.data);
-        setCategories(response.data);
-      } catch (err) {
-        console.error("❌ Error loading categories:", err);
-        setError("Không thể tải danh mục. Vui lòng thử lại.");
-      }
-    };
-
-    fetchCategories();
+    fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/categories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data));
   }, []);
 
   const handleChange = (e) => {
@@ -81,9 +71,16 @@ export default function AddProduct() {
     }
 
     try {
-      // ✅ Sử dụng createProduct từ api.js
-      const response = await createProduct(formData);
-      console.log("✅ Product created:", response.data);
+      const res = await fetch("http://localhost:8000/api/admin/products", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Lỗi khi thêm sản phẩm");
 
       setMessage("✅ Thêm sản phẩm thành công");
       setTimeout(() => {
@@ -91,7 +88,6 @@ export default function AddProduct() {
         navigate("/admin/products");
       }, 1500);
     } catch (err) {
-      console.error("❌ Error creating product:", err);
       setError("❌ Không thể thêm sản phẩm. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -145,7 +141,6 @@ export default function AddProduct() {
           value={form.category_id}
           onChange={handleChange}
           className="w-full p-2 border rounded"
-          required
         >
           <option value="">-- Chọn danh mục --</option>
           {categories.map((cat) => (
