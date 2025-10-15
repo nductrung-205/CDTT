@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { getCategories, getProductDetail, updateProduct } from "../api"; 
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -19,43 +20,42 @@ export default function EditProduct() {
   const [currentImageUrl, setCurrentImageUrl] = useState("");
   const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
+  // ✅ Load product và categories cùng lúc
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    fetch(`https://food-delivery-backend-1-nyzt.onrender.com/api/admin/products/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error("Không thể lấy dữ liệu sản phẩm");
-        }
-        const data = await res.json();
+    const fetchData = async () => {
+      try {
+        // Load product details
+        const productRes = await getProductDetail(id);
+        const data = productRes.data;
 
         setForm({
           name: data.name || "",
           price: data.price || "",
           category_id: data.category_id || "",
           description: data.description || "",
-          stock: data.stock?.toString() || "", // đảm bảo là chuỗi
+          stock: data.stock?.toString() || "",
           status: data.status || "available",
         });
         setCurrentImageUrl(data.image_url || "");
-      })
-      .catch((err) => {
-        console.error("❌ Lỗi khi lấy sản phẩm:", err);
-        alert("Không thể tải dữ liệu sản phẩm. Vui lòng thử lại.");
+
+        // Load categories
+        const categoriesRes = await getCategories();
+        console.log("✅ Categories loaded:", categoriesRes.data);
+        setCategories(categoriesRes.data);
+
+      } catch (err) {
+        console.error("❌ Error loading data:", err);
+        alert("Không thể tải dữ liệu. Vui lòng thử lại.");
         navigate("/admin/products");
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    fetch("http://localhost:8000/api/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data));
+    fetchData();
   }, [id, navigate]);
-
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -95,27 +95,29 @@ export default function EditProduct() {
       formData.append("image", imageFile);
     }
 
-    const token = localStorage.getItem("token");
+    try {
+      // ✅ Sử dụng updateProduct từ api.js
+      const response = await updateProduct(id, formData);
+      console.log("✅ Product updated:", response.data);
 
-    const res = await fetch(`http://localhost:8000/api/admin/products/${id}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-      body: formData,
-    });
-
-    if (res.ok) {
       setMessage("✅ Cập nhật sản phẩm thành công");
       setTimeout(() => {
         setMessage("");
         navigate("/admin/products");
       }, 1500);
-    } else {
+    } catch (err) {
+      console.error("❌ Error updating product:", err);
       alert("❌ Lỗi khi cập nhật sản phẩm.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg">Đang tải...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-md">
@@ -167,6 +169,7 @@ export default function EditProduct() {
             value={form.category_id}
             onChange={handleChange}
             className="mt-1 w-full p-2 border rounded-md"
+            required
           >
             <option value="">-- Chọn danh mục --</option>
             {categories.map((cat) => (
