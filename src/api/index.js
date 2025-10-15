@@ -67,7 +67,7 @@ export const createProduct = (data) => {
 
 export const updateProduct = (id, data) => {
   // ✅ Laravel nhận POST với _method='PUT' trong FormData
-  return API.post(`/admin/products/${id}`, data, {
+  return API.post(`/products/${id}`, data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   });
 };
