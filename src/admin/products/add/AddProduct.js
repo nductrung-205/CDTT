@@ -21,7 +21,7 @@ export default function AddProduct() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/categories")
+    fetch("https://food-delivery-backend-1-nyzt.onrender.com/api/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data));
   }, []);

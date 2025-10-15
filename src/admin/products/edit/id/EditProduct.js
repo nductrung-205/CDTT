@@ -23,7 +23,7 @@ export default function EditProduct() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch(`http://localhost:8000/api/admin/products/${id}`, {
+    fetch(`https://food-delivery-backend-1-nyzt.onrender.com/api/admin/products/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
