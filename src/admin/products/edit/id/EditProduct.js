@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getCategories, getProductDetail, updateProduct } from "../api"; 
+import API, { getCategories, updateProduct } from "../api"; // ✅ Import từ api.js
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -26,9 +26,13 @@ export default function EditProduct() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Load product details
-        const productRes = await getProductDetail(id);
+        console.log("🔄 Loading product ID:", id);
+        
+        // Load product details - Dùng trực tiếp API.get
+        const productRes = await API.get(`/admin/products/${id}`);
         const data = productRes.data;
+        
+        console.log("✅ Product data:", data);
 
         setForm({
           name: data.name || "",
@@ -47,7 +51,11 @@ export default function EditProduct() {
 
       } catch (err) {
         console.error("❌ Error loading data:", err);
-        alert("Không thể tải dữ liệu. Vui lòng thử lại.");
+        console.error("❌ Error details:", err.response?.data);
+        console.error("❌ Status code:", err.response?.status);
+        
+        const errorMsg = err.response?.data?.message || err.message || "Lỗi không xác định";
+        alert(`Không thể tải dữ liệu: ${errorMsg}`);
         navigate("/admin/products");
       } finally {
         setLoading(false);
