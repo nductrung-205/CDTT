@@ -27,6 +27,7 @@ import AddUser from './admin/users/add/AddUser';
 import EditUser from './admin/users/edit/id/EditUser';
 import AddOrder from './admin/orders/add/AddOrder';
 import EditOrder from './admin/orders/edit/id/EditOrder';
+import AdminImages from './admin/AdminImages';
 
 function App() {
   return (
@@ -113,6 +114,15 @@ function App() {
                 </AdminRoute>
               }
 
+            />
+
+            <Route
+              path="/admin/images" 
+              element={
+                <AdminRoute>
+                  <AdminImages />
+                </AdminRoute>
+              }
             />
             <Route
               path="/admin/users/add"

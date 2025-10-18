@@ -49,6 +49,17 @@ API.interceptors.response.use(
   }
 );
 
+export const uploadImage = (imageFile) => {
+  const formData = new FormData();
+  formData.append("image", imageFile); // 'image' phải khớp với tên trường trong backend validation ('image' => 'required|image|...')
+
+  return API.post("/images/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data", // Quan trọng: Phải là multipart/form-data khi gửi file
+    },
+  });
+};
+
 export const getCategories = () => API.get("/categories");
 export const getCategoryDetail = (id) => API.get(`/categories/${id}`);
 export const createCategory = (data) => API.post("/admin/categories", data);
