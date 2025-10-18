@@ -1,13 +1,8 @@
 // admin/products/edit/id/EditProduct.js
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  getProductDetail,
-  getCategories,
-  updateProduct,
-  uploadImage,
-} from "../../../api"; // Import từ api.js
-import AdminLayout from "../../../components/AdminLayout"; // Giả sử bạn có AdminLayout
+import { getProductDetail, getCategories, updateProduct, uploadImage } from "../../../api";
+import AdminLayout from "../../../components/AdminLayout";
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -22,47 +17,42 @@ export default function EditProduct() {
     status: "available",
   });
 
-  const [imageFile, setImageFile] = useState(null); // File ảnh mới được chọn
-  const [imagePreview, setImagePreview] = useState(null); // URL tạm thời cho ảnh mới
-  const [currentImageUrl, setCurrentImageUrl] = useState(""); // URL của ảnh hiện tại trên Cloudinary (từ DB)
-  const [finalImageUrl, setFinalImageUrl] = useState(""); // URL cuối cùng sẽ được lưu (có thể là current hoặc từ ảnh mới)
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState("");
+  const [finalImageUrl, setFinalImageUrl] = useState("");
 
   const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false); // Trạng thái tải ảnh lên Cloudinary riêng
+  const [imageUploading, setImageUploading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError("");
       try {
-        // Lấy chi tiết sản phẩm
-        const productResponse = await getProductDetail(id); // Sử dụng hàm từ api.js
+        const productResponse = await getProductDetail(id);
         const productData = productResponse.data;
 
         setForm({
           name: productData.name || "",
-          price: productData.price?.toString() || "", // Đảm bảo là string cho input type="number"
-          category_id: productData.category_id?.toString() || "", // Đảm bảo là string
+          price: productData.price?.toString() || "",
+          category_id: productData.category_id?.toString() || "",
           description: productData.description || "",
-          stock: productData.stock?.toString() || "", // Đảm bảo là string
+          stock: productData.stock?.toString() || "",
           status: productData.status || "available",
         });
-        setCurrentImageUrl(productData.image_url || "");
-        setFinalImageUrl(productData.image_url || ""); // Mặc định là ảnh hiện tại
+        setCurrentImageUrl(productData.image || "");
+        setFinalImageUrl(productData.image || "");
 
-        // Lấy danh mục
-        const categoriesResponse = await getCategories(); // Sử dụng hàm từ api.js
+        const categoriesResponse = await getCategories();
         setCategories(categoriesResponse.data);
       } catch (err) {
-        console.error("Lỗi khi tải dữ liệu sản phẩm hoặc danh mục:", err);
-        setError(
-          err.response?.data?.message ||
-            "Không thể tải dữ liệu sản phẩm. Vui lòng thử lại."
-        );
-        setTimeout(() => navigate("/admin/products"), 2000); // Điều hướng sau khi hiển thị lỗi
+        console.error("Lỗi khi tải dữ liệu:", err);
+        setError("Không thể tải dữ liệu sản phẩm.");
+        setTimeout(() => navigate("/admin/products"), 2000);
       } finally {
         setLoading(false);
       }
@@ -72,7 +62,7 @@ export default function EditProduct() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError(""); // Xóa lỗi khi người dùng thay đổi input
+    setError("");
   };
 
   const handleImageChange = (e) => {
@@ -99,7 +89,7 @@ export default function EditProduct() {
 
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
-    setFinalImageUrl(""); // Reset final URL nếu chọn ảnh mới (cần tải lên)
+    setFinalImageUrl("");
     setError("");
   };
 
@@ -110,14 +100,15 @@ export default function EditProduct() {
     }
     setImageUploading(true);
     setError("");
-    setFinalImageUrl(""); // Đảm bảo finalImageUrl trống trong khi tải
+    setFinalImageUrl("");
     try {
-      const response = await uploadImage(imageFile); // Sử dụng hàm từ api.js
+      const response = await uploadImage(imageFile);
       setFinalImageUrl(response.data.image_url);
       setMessage("✅ Ảnh mới đã được tải lên Cloudinary thành công!");
-      setImagePreview(null); // Clear preview sau khi tải thành công
+      setImagePreview(null);
+      setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      console.error("Lỗi tải ảnh lên Cloudinary:", err);
+      console.error("Lỗi tải ảnh:", err);
       setError(err.response?.data?.message || "❌ Lỗi khi tải ảnh lên Cloudinary.");
     } finally {
       setImageUploading(false);
@@ -126,17 +117,15 @@ export default function EditProduct() {
 
   const handleRemoveCurrentImage = () => {
     setCurrentImageUrl("");
-    setFinalImageUrl(""); // Clear final URL nếu xóa ảnh hiện tại
-    // Nếu bạn muốn xóa cả file trên Cloudinary, cần một API endpoint riêng
-    // Ví dụ: deleteImageFromCloudinary(productData.public_id)
-  }
+    setFinalImageUrl("");
+  };
 
   const handleRemoveNewImagePreview = () => {
     setImageFile(null);
     setImagePreview(null);
-    setFinalImageUrl(currentImageUrl); // Trở lại ảnh cũ nếu hủy ảnh mới
+    setFinalImageUrl(currentImageUrl);
     document.getElementById("image-upload-input").value = "";
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -145,217 +134,297 @@ export default function EditProduct() {
     setMessage("");
 
     if (!finalImageUrl) {
-      setError("Vui lòng tải ảnh sản phẩm lên Cloudinary hoặc đảm bảo có ảnh hiện tại.");
+      setError("❌ Vui lòng có ảnh sản phẩm.");
       setLoading(false);
       return;
     }
 
-    // Chuyển category_id thành số nguyên trước khi gửi
     const productData = {
       ...form,
       price: parseFloat(form.price),
       stock: parseInt(form.stock),
       category_id: parseInt(form.category_id),
-      image_url: finalImageUrl, // Sử dụng URL ảnh cuối cùng
+      image: finalImageUrl,
     };
 
     try {
-      await updateProduct(id, productData); // Sử dụng hàm từ api.js
+      await updateProduct(id, productData);
       setMessage("✅ Cập nhật sản phẩm thành công");
       setTimeout(() => {
-        setMessage("");
         navigate("/admin/products");
       }, 1500);
     } catch (err) {
-      console.error("Lỗi khi cập nhật sản phẩm:", err);
-      setError(err.response?.data?.message || "❌ Lỗi khi cập nhật sản phẩm. Vui lòng thử lại.");
+      console.error("Lỗi khi cập nhật:", err);
+      setError(err.response?.data?.message || "❌ Lỗi khi cập nhật sản phẩm.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AdminLayout> {/* Sử dụng AdminLayout */}
-      <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-md">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">🛠 Sửa sản phẩm</h1>
-          <button
-            onClick={() => navigate("/admin/products")}
-            className="text-sm px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
-          >
-            ← Quay lại
-          </button>
-        </div>
-
-        {message && (
-          <div className="mb-4 p-3 bg-green-100 text-green-700 rounded shadow-sm">
-            {message}
-          </div>
-        )}
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded shadow-sm">
-            {error}
-          </div>
-        )}
-
-        {loading && <p className="text-center text-gray-500">Đang tải dữ liệu sản phẩm...</p>}
-
-        {!loading && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tên sản phẩm</label>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                className="mt-1 w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Giá (₫)</label>
-              <input
-                type="number"
-                name="price"
-                value={form.price}
-                onChange={handleChange}
-                className="mt-1 w-full p-2 border rounded-md"
-                required
-                min="0"
-                step="0.01"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Danh mục</label>
-              <select
-                name="category_id"
-                value={form.category_id}
-                onChange={handleChange}
-                className="mt-1 w-full p-2 border rounded-md"
-                required
-              >
-                <option value="">-- Chọn danh mục --</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Số lượng tồn kho</label>
-              <input
-                type="number"
-                name="stock"
-                value={form.stock}
-                onChange={handleChange}
-                className="mt-1 w-full p-2 border rounded-md"
-                required
-                min="0"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                className="mt-1 w-full p-2 border rounded-md"
-                required
-              >
-                <option value="available">Còn hàng</option>
-                <option value="unavailable">Hết hàng</option>
-              </select>
-            </div>
-
-            {/* Phần xử lý ảnh */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Ảnh sản phẩm</label>
-
-              {/* Hiển thị ảnh hiện tại */}
-              {currentImageUrl && (
-                <div className="mb-2 p-2 border rounded-md bg-gray-50 flex items-center space-x-4">
-                  <img src={currentImageUrl} alt="Ảnh hiện tại" className="w-24 h-24 object-cover rounded shadow" />
-                  <div>
-                    <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">Ảnh hiện tại</span>
-                    <p className="text-sm break-all">{currentImageUrl.substring(0, 50)}...</p>
-                    <button
-                      type="button"
-                      onClick={handleRemoveCurrentImage}
-                      className="mt-1 text-red-500 hover:text-red-700 text-xs"
-                    >
-                      Xóa ảnh hiện tại
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Input chọn ảnh mới */}
-              <input
-                type="file"
-                id="image-upload-input"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="mt-1 w-full p-2 border rounded-md"
-              />
-
-              {/* Preview ảnh mới được chọn */}
-              {imagePreview && (
-                <div className="mt-2 flex items-center space-x-4 p-2 border rounded-md bg-blue-50">
-                  <img src={imagePreview} alt="Preview ảnh mới" className="w-24 h-24 object-cover rounded shadow" />
-                  <div>
-                    <span className="text-xs bg-blue-200 px-2 py-1 rounded-full">Ảnh mới được chọn</span>
-                    <button
-                      type="button"
-                      onClick={handleRemoveNewImagePreview}
-                      className="mt-1 text-red-500 hover:text-red-700 text-xs"
-                    >
-                      Hủy ảnh mới
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Nút tải ảnh lên Cloudinary */}
+    <AdminLayout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200 p-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div className="flex justify-between items-center">
+              <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+                🛠 Sửa Sản phẩm
+              </h1>
               <button
-                type="button"
-                onClick={handleUploadImageToCloudinary}
-                disabled={!imageFile || imageUploading}
-                className="mt-2 w-full py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 disabled:opacity-50"
+                onClick={() => navigate("/admin/products")}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-2"
               >
-                {imageUploading ? "Đang tải ảnh lên..." : "Tải ảnh mới lên Cloudinary"}
+                ← Quay lại
               </button>
-
-              {/* Thông báo URL ảnh cuối cùng */}
-              {finalImageUrl && <p className="text-sm text-green-600 mt-1">Ảnh cuối cùng sẽ được lưu: <a href={finalImageUrl} target="_blank" rel="noopener noreferrer" className="underline">{finalImageUrl.substring(0, 50)}...</a></p>}
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Mô tả</label>
-              <textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                rows="3"
-                className="mt-1 w-full p-2 border rounded-md"
-                required
-              />
+          {/* Messages */}
+          {message && (
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-lg">
+              {message}
             </div>
+          )}
+          {error && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-lg">
+              {error}
+            </div>
+          )}
 
-            <button
-              type="submit"
-              disabled={loading || imageUploading || !finalImageUrl} // Disable nếu đang tải ảnh hoặc không có URL ảnh cuối cùng
-              className="w-full py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 disabled:opacity-50"
-            >
-              {loading ? "Đang lưu thay đổi..." : "💾 Lưu thay đổi"}
-            </button>
-          </form>
-        )}
+          {loading && !form.name ? (
+            <div className="text-center text-gray-600 py-12">Đang tải dữ liệu...</div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column - Ảnh hiện tại */}
+                <div className="space-y-6">
+                  <div className="bg-white rounded-xl shadow-lg p-6">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">Ảnh sản phẩm</h3>
+                    
+                    {currentImageUrl && (
+                      <div className="mb-6">
+                        <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
+                          <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                            Ảnh hiện tại
+                          </span>
+                          <div className="relative">
+                            <img
+                              src={currentImageUrl}
+                              alt="Current"
+                              className="w-full h-64 object-cover rounded-lg shadow-md"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleRemoveCurrentImage}
+                              className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-1 shadow-lg transition-colors text-sm"
+                            >
+                              ❌ Xóa ảnh
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* File Input */}
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <input
+                          type="file"
+                          id="image-upload-input"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="image-upload-input"
+                          className="flex items-center justify-center w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer transition-colors"
+                        >
+                          <span className="text-gray-600">📁 Chọn tệp</span>
+                        </label>
+                      </div>
+
+                      {/* Preview ảnh mới */}
+                      {imagePreview && (
+                        <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
+                          <span className="inline-block bg-blue-200 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                            Preview
+                          </span>
+                          <div className="relative">
+                            <img
+                              src={imagePreview}
+                              alt="Preview"
+                              className="w-full h-64 object-cover rounded-lg shadow-md"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleRemoveNewImagePreview}
+                              className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-1 shadow-lg transition-colors text-sm"
+                            >
+                              ❌ Xóa ảnh hiện tại
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Upload Button */}
+                      <button
+                        type="button"
+                        onClick={handleUploadImageToCloudinary}
+                        disabled={!imageFile || imageUploading}
+                        className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {imageUploading ? "⏳ Đang tải ảnh lên..." : "☁️ Tải ảnh mới lên Cloudinary"}
+                      </button>
+
+                      {/* Final URL Info */}
+                      {finalImageUrl && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                          <p className="text-sm text-green-700 font-medium mb-1">
+                            Ảnh cuối cùng sẽ lưu:
+                          </p>
+                          <a
+                            href={finalImageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:underline break-all"
+                          >
+                            {finalImageUrl.substring(0, 60)}...
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column - Form Fields */}
+                <div className="bg-white rounded-xl shadow-lg p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Tên sản phẩm:
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Danh mục:
+                    </label>
+                    <select
+                      name="category_id"
+                      value={form.category_id}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="">-- Chọn danh mục --</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Giá
+                      </label>
+                      <input
+                        type="number"
+                        name="price"
+                        value={form.price}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                        min="0"
+                        step="1000"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Trạng thái:
+                      </label>
+                      <select
+                        name="status"
+                        value={form.status}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      >
+                        <option value="available">Còn hàng</option>
+                        <option value="unavailable">Hết hàng</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Số lượng tồn kho:
+                    </label>
+                    <input
+                      type="number"
+                      name="stock"
+                      value={form.stock}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Trạng thái:
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={form.status === 'available' ? 'Còn hàng' : 'Hết hàng'}
+                        readOnly
+                        className="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg"
+                      />
+                      <input
+                        type="text"
+                        value={form.status === 'available' ? 'Còn hàng' : 'Hết hàng'}
+                        readOnly
+                        className="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Ảnh sản phẩm
+                    </label>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p>• Nhấm tải ảnh lên đến):</p>
+                      <p>• Dùng = [Tioga_ImageJS]:</p>
+                      <p>• Nơi mà cũng hỗ trợ không có thể của làm</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || imageUploading || !finalImageUrl}
+                    className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <span>💾</span>
+                    {loading ? "Đang lưu thay đổi..." : "Lưu thay đổi"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </AdminLayout>
   );
