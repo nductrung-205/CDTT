@@ -89,6 +89,7 @@ export default function AddProduct() {
     try {
       const response = await uploadImage(imageFile);
       setFinalImageUrl(response.data.image_url);
+      setFinalImageUrl(response.data.url);
       setMessage("✅ Ảnh đã được tải lên Cloudinary thành công!");
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
@@ -98,6 +99,7 @@ export default function AddProduct() {
       setImageUploading(false);
     }
   };
+
 
   const handleRemoveImage = () => {
     setImageFile(null);
@@ -292,7 +294,7 @@ export default function AddProduct() {
                 {/* Image Preview Card */}
                 <div className="bg-white rounded-xl shadow-lg p-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-4">Ảnh sản phẩm</h3>
-                  
+
                   <div className="space-y-4">
                     {/* File Input */}
                     <div className="relative">

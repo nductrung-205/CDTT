@@ -104,6 +104,7 @@ export default function EditProduct() {
     try {
       const response = await uploadImage(imageFile);
       setFinalImageUrl(response.data.image_url);
+      setFinalImageUrl(response.data.url);
       setMessage("✅ Ảnh mới đã được tải lên Cloudinary thành công!");
       setImagePreview(null);
       setTimeout(() => setMessage(""), 3000);
@@ -201,7 +202,7 @@ export default function EditProduct() {
                 <div className="space-y-6">
                   <div className="bg-white rounded-xl shadow-lg p-6">
                     <h3 className="text-lg font-bold text-gray-800 mb-4">Ảnh sản phẩm</h3>
-                    
+
                     {currentImageUrl && (
                       <div className="mb-6">
                         <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
@@ -381,34 +382,14 @@ export default function EditProduct() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Trạng thái:
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={form.status === 'available' ? 'Còn hàng' : 'Hết hàng'}
-                        readOnly
-                        className="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg"
-                      />
-                      <input
-                        type="text"
-                        value={form.status === 'available' ? 'Còn hàng' : 'Hết hàng'}
-                        readOnly
-                        className="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                  </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Ảnh sản phẩm
                     </label>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      <p>• Nhấm tải ảnh lên đến):</p>
-                      <p>• Dùng = [Tioga_ImageJS]:</p>
-                      <p>• Nơi mà cũng hỗ trợ không có thể của làm</p>
+                    <div className="space-y-1 text-sm text-gray-600">
+                      <p>• Ảnh sẽ được tải lên Cloudinary trước khi lưu sản phẩm.</p>
+                      <p>• Dung lượng tối đa: 2MB. Hỗ trợ định dạng JPG, PNG, JFIF.</p>
                     </div>
                   </div>
 
