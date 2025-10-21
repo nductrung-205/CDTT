@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getProducts } from "../api";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -10,23 +10,22 @@ export default function Header() {
   const [suggestions, setSuggestions] = useState([]);
   const [openMenu, setOpenMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  
+
   const navigate = useNavigate();
   const { cart } = useCart();
   const { user, logout } = useAuth();
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Fetch product data + listen scroll
   useEffect(() => {
-    getProducts().then((res) => setAllProducts(res.data));
-    
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    getProducts().then((res) => setAllProducts(res.data || []));
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Handle search submit
   const handleSearch = (e) => {
     e.preventDefault();
     if (keyword.trim() !== "") {
@@ -36,6 +35,7 @@ export default function Header() {
     }
   };
 
+  // Handle typing in search box
   const handleChange = (e) => {
     const value = e.target.value;
     setKeyword(value);
@@ -51,27 +51,25 @@ export default function Header() {
   };
 
   return (
-    <header 
+    <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? "bg-white shadow-lg" 
-          : "bg-gradient-to-r from-orange-500 to-red-500"
+        scrolled ? "bg-white shadow-lg" : "bg-gradient-to-r from-orange-500 to-red-500"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex justify-between items-center gap-6">
-         
-          <Link 
-            to="/" 
-            className={`text-2xl font-bold tracking-tight flex items-center gap-2 transition-colors ${
+          {/* 🍜 Logo */}
+          <h1
+            onClick={() => navigate("/")}
+            className={`text-2xl font-bold tracking-tight flex items-center gap-2 cursor-pointer transition-colors ${
               scrolled ? "text-orange-600" : "text-white"
             }`}
           >
             <span className="text-3xl">🍜</span>
-            <span className="hidden md:block">Nguyễn Đức Trung</span>
-          </Link>
+            <span>Food Order</span>
+          </h1>
 
-    
+          {/* 🔍 Search box */}
           <div className="relative flex-1 max-w-2xl">
             <form onSubmit={handleSearch} className="flex">
               <input
@@ -80,8 +78,8 @@ export default function Header() {
                 value={keyword}
                 onChange={handleChange}
                 className={`w-full px-4 py-2.5 rounded-l-full outline-none transition-all ${
-                  scrolled 
-                    ? "bg-gray-100 text-gray-800 focus:bg-white focus:ring-2 focus:ring-orange-500" 
+                  scrolled
+                    ? "bg-gray-100 text-gray-800 focus:bg-white focus:ring-2 focus:ring-orange-500"
                     : "bg-white/90 text-gray-800 focus:bg-white"
                 }`}
               />
@@ -97,7 +95,7 @@ export default function Header() {
               </button>
             </form>
 
-        
+            {/* 🧠 Suggestions */}
             {suggestions.length > 0 && (
               <ul className="absolute z-50 bg-white text-gray-800 mt-2 w-full rounded-xl shadow-2xl border border-gray-100 max-h-80 overflow-y-auto">
                 {suggestions.map((p) => (
@@ -110,14 +108,16 @@ export default function Header() {
                       setSuggestions([]);
                     }}
                   >
-                    <img 
-                      src={p.image_url} 
+                    <img
+                      src={p.image_url}
                       alt={p.name}
                       className="w-12 h-12 object-cover rounded-lg"
                     />
                     <div className="flex-1">
                       <p className="font-semibold text-gray-800">{p.name}</p>
-                      <p className="text-sm text-orange-600">{p.price.toLocaleString()}₫</p>
+                      <p className="text-sm text-orange-600">
+                        {p.price.toLocaleString()}₫
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -125,35 +125,35 @@ export default function Header() {
             )}
           </div>
 
-         
+          {/* 🌐 Navigation */}
           <nav className="flex items-center gap-1">
-            <Link 
-              to="/" 
+            <button
+              onClick={() => navigate("/")}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                scrolled 
-                  ? "text-gray-700 hover:bg-orange-50 hover:text-orange-600" 
+                scrolled
+                  ? "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                   : "text-white hover:bg-white/20"
               }`}
             >
               Trang chủ
-            </Link>
-            <Link 
-              to="/menu" 
+            </button>
+
+            <button
+              onClick={() => navigate("/menu")}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                scrolled 
-                  ? "text-gray-700 hover:bg-orange-50 hover:text-orange-600" 
+                scrolled
+                  ? "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                   : "text-white hover:bg-white/20"
               }`}
             >
               Thực đơn
-            </Link>
+            </button>
 
-         
-            <Link 
-              to="/cart" 
+            <button
+              onClick={() => navigate("/cart")}
               className={`relative px-4 py-2 rounded-lg font-medium transition-all ${
-                scrolled 
-                  ? "text-gray-700 hover:bg-orange-50 hover:text-orange-600" 
+                scrolled
+                  ? "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                   : "text-white hover:bg-white/20"
               }`}
             >
@@ -163,23 +163,24 @@ export default function Header() {
                   {totalItems}
                 </span>
               )}
-            </Link>
+            </button>
 
-         
+            {/* 👤 Auth menu */}
             {!user ? (
               <>
-                <Link 
-                  to="/login" 
+                <button
+                  onClick={() => navigate("/login")}
                   className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    scrolled 
-                      ? "text-gray-700 hover:bg-orange-50 hover:text-orange-600" 
+                    scrolled
+                      ? "text-gray-700 hover:bg-orange-50 hover:text-orange-600"
                       : "text-white hover:bg-white/20"
                   }`}
                 >
                   Đăng nhập
-                </Link>
-                <Link 
-                  to="/register" 
+                </button>
+
+                <button
+                  onClick={() => navigate("/register")}
                   className={`px-5 py-2 rounded-full font-semibold transition-all ${
                     scrolled
                       ? "bg-orange-500 text-white hover:bg-orange-600"
@@ -187,24 +188,30 @@ export default function Header() {
                   }`}
                 >
                   Đăng ký
-                </Link>
+                </button>
               </>
             ) : (
               <div className="relative">
                 <button
                   onClick={() => setOpenMenu(!openMenu)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                    scrolled 
-                      ? "text-gray-700 hover:bg-orange-50" 
+                    scrolled
+                      ? "text-gray-700 hover:bg-orange-50"
                       : "text-white hover:bg-white/20"
                   }`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                    scrolled ? "bg-orange-500 text-white" : "bg-white text-orange-600"
-                  }`}>
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                      scrolled
+                        ? "bg-orange-500 text-white"
+                        : "bg-white text-orange-600"
+                    }`}
+                  >
                     {user.fullname?.charAt(0).toUpperCase() || "U"}
                   </div>
-                  <span className="hidden md:block">{user.fullname || user.email}</span>
+                  <span className="hidden md:block">
+                    {user.fullname || user.email}
+                  </span>
                 </button>
 
                 {openMenu && (
@@ -213,31 +220,37 @@ export default function Header() {
                       <p className="font-semibold text-gray-800">{user.fullname}</p>
                       <p className="text-sm text-gray-600">{user.email}</p>
                     </div>
-                    
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-3 hover:bg-orange-50 transition text-gray-700"
-                      onClick={() => setOpenMenu(false)}
+
+                    <button
+                      onClick={() => {
+                        navigate("/profile");
+                        setOpenMenu(false);
+                      }}
+                      className="block w-full text-left px-4 py-3 hover:bg-orange-50 transition text-gray-700"
                     >
                       👤 Tài khoản của tôi
-                    </Link>
-                    
-                    <Link
-                      to="/orders"
-                      className="block px-4 py-3 hover:bg-orange-50 transition text-gray-700"
-                      onClick={() => setOpenMenu(false)}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate("/orders");
+                        setOpenMenu(false);
+                      }}
+                      className="block w-full text-left px-4 py-3 hover:bg-orange-50 transition text-gray-700"
                     >
                       📦 Đơn hàng của tôi
-                    </Link>
+                    </button>
 
                     {user.role === 0 && (
-                      <Link
-                        to="/admin"
-                        className="block px-4 py-3 hover:bg-orange-50 transition text-gray-700 border-t"
-                        onClick={() => setOpenMenu(false)}
+                      <button
+                        onClick={() => {
+                          navigate("/admin");
+                          setOpenMenu(false);
+                        }}
+                        className="block w-full text-left px-4 py-3 hover:bg-orange-50 transition text-gray-700 border-t"
                       >
                         ⚙️ Quản trị
-                      </Link>
+                      </button>
                     )}
 
                     <button
